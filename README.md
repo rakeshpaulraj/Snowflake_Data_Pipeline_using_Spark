@@ -126,13 +126,6 @@ S_SUPPKEY	|S_NAME	| N_NATIONKEY|	N_NAME
 df_stage1 = spark.sql("select n_name, count(*) as supplier_count from df_view group by 1")
 ```
 
-### Write Transformed data into S3 bucket (To be consumed by Snowflake in next step)
-
-
-```python
-target_s3_path = f'{S3_BUCKET}/supplier_nation_counts'
-df_stage1.write.mode('overwrite').csv(target_s3_path, header=True)
-```
 
 ### Data Validation
 * Validate whether the data is loaded into S3 properly by reading the loaded S3 data and get the count. Count should not be 0.
@@ -145,9 +138,11 @@ spark.read.csv(target_s3_path, header=True).count()
 
 ## <mark>ETL - LOAD STEP</mark>
 
-### Copy data from S3 output bucket into Snowflake Target table
+Data can be loaded into Snowflake by using either of the following methods:
+1. Load Spark Dataframe directly into Snowflake using Snowflake Connector
+2. Write data into S3 storage and Bulk load S3 data into Snowflake
 
-**Method 1**. Write Spark Dataframe directly into Snowflake Target Table (Target Table name :  supplier_nation_counts)
+##### Method 1: Write Spark Dataframe directly into Snowflake Target Table 
 
 
 ```python
@@ -159,9 +154,21 @@ df_stage1.write.format(SNOWFLAKE_SOURCE_NAME) \
     .save()
 ```
 
-**Method 2**. COPY command (Bulk Copy) - Can be run using script or in Snowflake directly
+##### Method 2. Bulk Load into Snowflake Target using COPY command
 
-```copy into supplier_nation_counts
+
+* Write Transformed data into S3 bucket 
+
+
+```python
+target_s3_path = f'{S3_BUCKET}/supplier_nation_counts'
+df_stage1.write.mode('overwrite').csv(target_s3_path, header=True)
+```
+
+* Copy data from S3 into Snowflake Target
+  
+```
+copy into supplier_nation_counts
 from target_s3_path credentials=(aws_key_id=AWS_ACCESS_KEY_ID aws_secret_key='AWS_SECRET_ACCESS_KEY')
 file_format = (type = csv field_delimiter = ',' skip_header = 1);
 ```
