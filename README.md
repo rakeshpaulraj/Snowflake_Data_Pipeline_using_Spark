@@ -5,9 +5,10 @@
 This exercise is to illustrate a simple Data pipeline using Apache Spark to Extract, Transform & Load data from/to Snowflake database.
 
 ### Pre-requisities
-* Apache Spark installation (This project uses Spark 2.4, Scala 2.11.12)
-* Snowflake Account
-* AWS S3 storage (or any other cloud storage)
+* Apache Spark installation (This demo is done using Spark 2.4, Scala 2.11.12)
+* Snowflake Account (This demo is done using Snowflake cluster of xsmall size)
+* Cloud storage (This demo is done using AWS S3 storage)
+* Java jdk version 8 (Scala is still having some issues with Java version > 8. So recommended to use jdk8)
 
 
 ```python
