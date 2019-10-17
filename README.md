@@ -126,15 +126,7 @@ S_SUPPKEY	|S_NAME	| N_NATIONKEY|	N_NAME
 df_stage1 = spark.sql("select n_name, count(*) as supplier_count from df_view group by 1")
 ```
 
-
-### Data Validation
-* Validate whether the data is loaded into S3 properly by reading the loaded S3 data and get the count. Count should not be 0.
-
-
-```python
-spark.read.csv(target_s3_path, header=True).count()
-```
-..
+.
 
 ## <mark>ETL - LOAD STEP</mark>
 
