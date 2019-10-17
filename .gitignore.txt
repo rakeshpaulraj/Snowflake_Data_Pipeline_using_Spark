@@ -1,0 +1,4 @@
+*.cfg
+*_key.txt
+*_key.*
+.ipynb_checkpoints
