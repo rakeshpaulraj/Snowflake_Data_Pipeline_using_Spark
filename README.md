@@ -18,24 +18,7 @@ from pyspark.sql import SparkSession
 
 ### Import AWS/Snowflake Credentials from Config File
 * Create a .cfg file in your directory and store the credentials there.
-* Template of credentials.cfg file is as follows
-
-
-``` 
-[AWS_CREDENTIALS]
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-
-[AWS_S3]
-S3_BUCKET=
-    
-[SNOWFLAKE]
-URL=
-ACCOUNT=
-USER=
-PASSWORD=
-
-```
+* Template of credentials.cfg file is included in the repository under the name `credentials.template`
 
 
 
@@ -75,7 +58,7 @@ spark = SparkSession \
     .getOrCreate()
 ```
 
-#### Note that the USER should have CREATE STAGE privileges on the schema/tables which are being queried. Because Snowflake connector stages the data during querying. Otherwise Spark throws error saying "Insufficient authorization privileges"
+##### *Note: Snowflake USER account should have CREATE STAGE privileges on the schema/tables which are being queried. Because Snowflake connector stages the data during querying. Otherwise Spark throws error saying "Insufficient authorization privileges"*
 
 ### Set AWS credentials
 
@@ -102,7 +85,7 @@ sfOptions = {
   "sfRole" : "SYSADMIN",
 }
 ```
-
+..
 ## <mark>ETL - EXTRACT STEP</mark>
 
 ### Read data from Snowflake
@@ -122,59 +105,15 @@ df = spark.read.format(SNOWFLAKE_SOURCE_NAME) \
     .load()
 ```
 
+**Sample Input Data:**
 
-```python
-df.limit(2).toPandas()
-```
+S_SUPPKEY	|S_NAME	| N_NATIONKEY|	N_NAME
+----------|-------|------------|-----------
+0	343300	|Supplier#000343300 |	 6	| FRANCE
+1	343301	|Supplier#000343301	| 14	| KENYA
 
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>S_SUPPKEY</th>
-      <th>S_NAME</th>
-      <th>N_NATIONKEY</th>
-      <th>N_NAME</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>0</td>
-      <td>343300</td>
-      <td>Supplier#000343300</td>
-      <td>6</td>
-      <td>FRANCE</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>343301</td>
-      <td>Supplier#000343301</td>
-      <td>14</td>
-      <td>KENYA</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
+  
+..
 ## <mark>ETL - TRANSFORM STEP</mark>
 
 ### Perform Spark Transformation
@@ -201,13 +140,7 @@ df_stage1.write.mode('overwrite').csv(target_s3_path, header=True)
 ```python
 spark.read.csv(target_s3_path, header=True).count()
 ```
-
-
-
-
-    25
-
-
+..
 
 ## <mark>ETL - LOAD STEP</mark>
 
@@ -231,7 +164,7 @@ df_stage1.write.format(SNOWFLAKE_SOURCE_NAME) \
 from target_s3_path credentials=(aws_key_id=AWS_ACCESS_KEY_ID aws_secret_key='AWS_SECRET_ACCESS_KEY')
 file_format = (type = csv field_delimiter = ',' skip_header = 1);
 ```
-
+.
 ### Finally!!! -- Read data from Snowflake Target table to verify whether the data is loaded properly
 
 
@@ -246,6 +179,7 @@ df2 = spark.read.format(SNOWFLAKE_SOURCE_NAME) \
 df2.show(2)
 ```
 
+**Sample Output Data:**
 
 N_NAME|SUPPLIER_COUNT
 ------|--------------
